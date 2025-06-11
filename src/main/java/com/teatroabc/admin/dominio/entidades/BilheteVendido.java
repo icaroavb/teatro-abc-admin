@@ -120,4 +120,11 @@ public class BilheteVendido {
                 ", reembolsado=" + reembolsado +
                 '}';
     }
+
+private LocalDateTime dataCompra;
+
+
+public LocalDateTime getDataCompra() {
+    return dataCompra;
+}
 }
