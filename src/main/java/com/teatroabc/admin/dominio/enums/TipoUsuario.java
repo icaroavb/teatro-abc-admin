@@ -1,0 +1,1 @@
+public enum TipoUsuario { ADMIN, FUNCIONARIO }
