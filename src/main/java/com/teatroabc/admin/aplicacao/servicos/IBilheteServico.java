@@ -1,5 +1,11 @@
 package main.java.com.teatroabc.admin.aplicacao.servicos;
 
+import com.teatroabc.admin.aplicacao.modelos.Usuario;
+import java.util.List;
+
+import java.util.Optional;
+
+
 import com.teatroabc.admin.aplicacao.dto.ReembolsoDTO;
 import com.teatroabc.admin.dominio.entidades.BilheteVendido;
 

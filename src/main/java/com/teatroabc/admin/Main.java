@@ -10,6 +10,12 @@ import com.teatroabc.admin.infraestrutura.persistencia.implementacao.BilheteRepo
 import com.teatroabc.admin.infraestrutura.persistencia.implementacao.UsuarioRepositorio;
 import com.teatroabc.admin.infraestrutura.ui_swing.telas.TelaLogin;
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
+import com.teatroabc.admin.aplicacao.servicos.IBilheteServico;
+import com.teatroabc.admin.aplicacao.servicos.BilheteServico;
+
+
+
+
 
 import javax.swing.*;
 import java.awt.*;
