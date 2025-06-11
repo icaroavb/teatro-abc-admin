@@ -1,21 +1,30 @@
+
+import com.teatroabc.admin.aplicacao.dto.LoginDTO;
+import com.teatroabc.admin.dominio.entidades.Usuario;
+
+/**
+ * Interface que define as operações de autenticação.
+ * Porta de entrada na arquitetura hexagonal.
+ */
 public interface IAutenticacaoServico {
+    
     /**
-     * Autentica um usuário com as credenciais fornecidas.
-     * @param loginDTO DTO com as credenciais do usuário
-     * @return Objeto Usuario se autenticado com sucesso, null caso contrário
+     * Autentica um usuário com base nas credenciais fornecidas.
+     * @param loginDTO DTO contendo usuário e senha
+     * @return Usuário autenticado ou null se falhar
      */
     Usuario autenticar(LoginDTO loginDTO);
     
     /**
-     * Valida se um token de sessão é válido.
-     * @param token Token de sessão
-     * @return true se o token for válido, false caso contrário
+     * Valida se uma sessão está ativa.
+     * @param token Token da sessão
+     * @return true se a sessão for válida, false caso contrário
      */
     boolean validarSessao(String token);
     
     /**
      * Encerra a sessão de um usuário.
-     * @param token Token de sessão a ser invalidado
+     * @param token Token da sessão a ser encerrada
      */
     void encerrarSessao(String token);
 }

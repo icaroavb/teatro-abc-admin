@@ -1,3 +1,5 @@
+
+
 import com.teatroabc.admin.aplicacao.dto.LoginDTO;
 import com.teatroabc.admin.aplicacao.interfaces.IAutenticacaoServico;
 import com.teatroabc.admin.dominio.entidades.Usuario;
@@ -17,6 +19,19 @@ public class AutenticacaoServico implements IAutenticacaoServico {
     
     private final UsuarioRepositorio usuarioRepositorio;
     private final Map<String, SessaoUsuario> sessoes;
+    
+    /**
+     * Classe interna para representar uma sessão de usuário.
+     */
+    private static class SessaoUsuario {
+        final String idUsuario;
+        final LocalDateTime expiracao;
+        
+        SessaoUsuario(String idUsuario, LocalDateTime expiracao) {
+            this.idUsuario = idUsuario;
+            this.expiracao = expiracao;
+        }
+    }
     
     /**
      * Construtor do serviço de autenticação.
@@ -85,50 +100,30 @@ public class AutenticacaoServico implements IAutenticacaoServico {
         return usuario;
     }
     
+    @Override
+    public boolean validarSessao(String token) {
+        if (token == null || token.isEmpty()) {
+            return false;
+        }
+        
+        SessaoUsuario sessao = sessoes.get(token);
+        if (sessao == null) {
+            return false;
+        }
+        
+        // Verificar se a sessão expirou
+        if (sessao.expiracao.isBefore(LocalDateTime.now())) {
+            sessoes.remove(token);
+            return false;
+        }
+        
+        return true;
+    }
     
     @Override
-public boolean validarSessao(String token) {
-    if (token == null || token.isEmpty()) {
-        return false;
+    public void encerrarSessao(String token) {
+        if (token != null) {
+            sessoes.remove(token);
+        }
     }
-    
-    SessaoUsuario sessao = sessoes.get(token);
-    if (sessao == null) {
-        return false;
-    }
-    
-    // Verificar se a sessão expirou
-    if (sessao.expiracao.isBefore(LocalDateTime.now())) {
-        sessoes.remove(token);
-        return false;
-    }
-    
-    // Renova a sessão para mais 8 horas
-    sessao.expiracao = LocalDateTime.now().plusHours(8);
-    return true;
-}
-
-/**
- * Encerra a sessão de um usuário.
- * @param token Token de sessão a ser invalidado
- */
-@Override
-public void encerrarSessao(String token) {
-    if (token != null && !token.isEmpty()) {
-        sessoes.remove(token);
-    }
-}
-
-/**
- * Classe interna para armazenar informações de sessão.
- */
-private static class SessaoUsuario {
-    String idUsuario;
-    LocalDateTime expiracao;
-    
-    SessaoUsuario(String idUsuario, LocalDateTime expiracao) {
-        this.idUsuario = idUsuario;
-        this.expiracao = expiracao;
-    }
-}
 }
