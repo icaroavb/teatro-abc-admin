@@ -1,3 +1,4 @@
+package com.teatroabc.admin.infraestrutura.ui_swing.telas;
 
 import com.teatroabc.admin.aplicacao.dto.LoginDTO;
 import com.teatroabc.admin.aplicacao.interfaces.IAutenticacaoServico;
@@ -193,13 +194,12 @@ public class TelaLogin extends JFrame {
     }
     
     private void abrirTelaPrincipal(Usuario usuario) {
-        SwingUtilities.invokeLater(() -> {
-            TelaPrincipalAdmin telaPrincipal = new TelaPrincipalAdmin(usuario);
-            telaPrincipal.setVisible(true);
-            this.dispose();
-        });
-    }
-    
+    SwingUtilities.invokeLater(() -> {
+        TelaPrincipalAdmin telaPrincipal = new TelaPrincipalAdmin(usuario);
+        telaPrincipal.setVisible(true);
+        this.dispose();
+    });
+}
     // Para testes e desenvolvimento
     public static void main(String[] args) {
         // Mock do serviço de autenticação para testes
@@ -215,6 +215,12 @@ public class TelaLogin extends JFrame {
             @Override
             public boolean validarSessao(String token) {
                 return true;
+            }
+
+            @Override
+            public void encerrarSessao(String token) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'encerrarSessao'");
             }
         };
         

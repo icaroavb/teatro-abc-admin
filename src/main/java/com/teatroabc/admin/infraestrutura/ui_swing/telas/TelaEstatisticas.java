@@ -1,3 +1,5 @@
+package com.teatroabc.admin.infraestrutura.ui_swing.telas;
+
 
 
 import com.teatroabc.admin.aplicacao.dto.EstatisticaDTO;

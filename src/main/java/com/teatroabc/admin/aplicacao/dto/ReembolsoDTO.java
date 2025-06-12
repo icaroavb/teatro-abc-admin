@@ -1,3 +1,5 @@
+package com.teatroabc.admin.aplicacao.dto;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

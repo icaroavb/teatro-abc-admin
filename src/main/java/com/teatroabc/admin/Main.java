@@ -1,3 +1,6 @@
+package com.teatroabc.admin;
+
+
 
 import com.teatroabc.admin.aplicacao.interfaces.IAutenticacaoServico;
 import com.teatroabc.admin.aplicacao.interfaces.IBilheteServico;
@@ -9,16 +12,15 @@ import com.teatroabc.admin.dominio.interfaces.IRepositorioBilhete;
 import com.teatroabc.admin.infraestrutura.persistencia.implementacao.BilheteRepositorio;
 import com.teatroabc.admin.infraestrutura.persistencia.implementacao.UsuarioRepositorio;
 import com.teatroabc.admin.infraestrutura.ui_swing.telas.TelaLogin;
+import com.teatroabc.admin.infraestrutura.ui_swing.telas.TelaPrincipalAdmin;
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
-import com.teatroabc.admin.aplicacao.servicos.IBilheteServico;
-import com.teatroabc.admin.aplicacao.servicos.BilheteServico;
-
-
-
-
 
 import javax.swing.*;
 import java.awt.*;
+
+// Remover importações duplicadas e incorretas:
+// import com.teatroabc.admin.aplicacao.servicos.IBilheteServico;
+// import com.teatroabc.admin.aplicacao.servicos.BilheteServico;
 
 /**
  * Classe principal da aplicação administrativa do Teatro ABC.
@@ -63,24 +65,28 @@ public class Main {
      * Inicializa os componentes da aplicação e configura a injeção de dependências.
      */
     private static void inicializarAplicacao() {
-        // Instancia os repositórios
-        IRepositorioBilhete bilheteRepositorio = new BilheteRepositorio();
-        UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
-        
-        // Instancia os serviços e injeta as dependências
-        IBilheteServico bilheteServico = new BilheteServico(bilheteRepositorio);
-        IEstatisticaServico estatisticaServico = new EstatisticaServico(bilheteServico);
-        IAutenticacaoServico autenticacaoServico = new AutenticacaoServico(usuarioRepositorio);
-        
-        // Inicializa o cache de bilhetes
-        inicializarCache(bilheteServico);
-        
-        // Inicia a interface gráfica
-        SwingUtilities.invokeLater(() -> {
-            TelaLogin telaLogin = new TelaLogin(autenticacaoServico);
-            telaLogin.setVisible(true);
-        });
-    }
+    // Instancia os repositórios
+    IRepositorioBilhete bilheteRepositorio = new BilheteRepositorio();
+    UsuarioRepositorio usuarioRepositorio = new UsuarioRepositorio();
+    
+    // Instancia os serviços e injeta as dependências
+    IBilheteServico bilheteServico = new BilheteServico(bilheteRepositorio);
+    IEstatisticaServico estatisticaServico = new EstatisticaServico(bilheteServico);
+    IAutenticacaoServico autenticacaoServico = new AutenticacaoServico(usuarioRepositorio);
+    
+    // Configura o ServiceLocator
+    TelaPrincipalAdmin.ServiceLocator.inicializar(
+        bilheteServico, estatisticaServico, autenticacaoServico);
+    
+    // Inicializa o cache de bilhetes
+    inicializarCache(bilheteServico);
+    
+    // Inicia a interface gráfica
+    SwingUtilities.invokeLater(() -> {
+        TelaLogin telaLogin = new TelaLogin(autenticacaoServico);
+        telaLogin.setVisible(true);
+    });
+}
     
     /**
      * Inicializa o cache de bilhetes em segundo plano.

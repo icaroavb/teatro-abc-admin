@@ -1,4 +1,6 @@
-import com.teatroabc.admin.aplicacao.interfaces.IBilheteServico;
+package com.teatroabc.admin.aplicacao.servicos;
+
+import com.teatroabc.admin.aplicacao.interfaces.IBilheteServico; // Corrigido para o pacote interfaces
 import com.teatroabc.admin.aplicacao.dto.ReembolsoDTO;
 import com.teatroabc.admin.dominio.entidades.BilheteVendido;
 import com.teatroabc.admin.dominio.interfaces.IRepositorioBilhete;
@@ -8,7 +10,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 /**
  * Serviço de aplicação responsável pela lógica de negócio de bilhetes.
  * Coordena operações entre cache e repositório, garantindo consistência.

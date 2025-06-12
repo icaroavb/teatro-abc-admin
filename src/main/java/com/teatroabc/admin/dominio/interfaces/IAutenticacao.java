@@ -1,3 +1,5 @@
+package com.teatroabc.admin.dominio.interfaces;
+
 
 
 /**

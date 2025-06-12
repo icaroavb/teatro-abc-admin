@@ -1,4 +1,4 @@
-
+package com.teatroabc.admin.infraestrutura.persistencia.implementacao;
 
 import com.teatroabc.admin.dominio.entidades.BilheteVendido;
 import com.teatroabc.admin.dominio.interfaces.IRepositorioBilhete;

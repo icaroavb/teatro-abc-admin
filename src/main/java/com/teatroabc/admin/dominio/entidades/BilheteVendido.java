@@ -1,3 +1,5 @@
+package com.teatroabc.admin.dominio.entidades;
+
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;

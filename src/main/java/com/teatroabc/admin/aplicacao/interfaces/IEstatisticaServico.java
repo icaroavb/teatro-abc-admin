@@ -1,3 +1,5 @@
+package com.teatroabc.admin.aplicacao.interfaces;
+
 
 import com.teatroabc.admin.aplicacao.dto.EstatisticaDTO;
 import java.util.Map;

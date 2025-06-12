@@ -1,4 +1,5 @@
 
+package com.teatroabc.admin.infraestrutura.persistencia.implementacao;
 
 import com.teatroabc.admin.dominio.entidades.Usuario;
 import com.teatroabc.admin.infraestrutura.persistencia.conexao.ConexaoDB;

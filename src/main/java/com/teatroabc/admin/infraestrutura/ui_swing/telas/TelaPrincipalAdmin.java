@@ -1,4 +1,7 @@
+package com.teatroabc.admin.infraestrutura.ui_swing.telas;
 
+
+import com.teatroabc.admin.aplicacao.interfaces.IAutenticacaoServico;
 import com.teatroabc.admin.aplicacao.interfaces.IBilheteServico;
 import com.teatroabc.admin.aplicacao.interfaces.IEstatisticaServico;
 import com.teatroabc.admin.dominio.entidades.Usuario;
@@ -254,20 +257,23 @@ public class TelaPrincipalAdmin extends JFrame {
     }
     
     // Classe auxiliar para obter serviços (seria substituída por injeção de dependência)
-    private static class ServiceLocator {
-        public static IBilheteServico getBilheteServico() {
-            // Em uma aplicação real, este método retornaria o serviço do contêiner de DI
-            return null; // Substituir por implementação real
-        }
-        
-        public static IEstatisticaServico getEstatisticaServico() {
-            return null; // Substituir por implementação real
-        }
-        
-        public static IAutenticacaoServico getAutenticacaoServico() {
-            return null; // Substituir por implementação real
-        }
+   private static class ServiceLocator {
+    private static IBilheteServico bilheteServico;
+    private static IEstatisticaServico estatisticaServico;
+    private static IAutenticacaoServico autenticacaoServico;
+    
+    public static IBilheteServico getBilheteServico() {
+        return bilheteServico;
     }
+    
+    public static IEstatisticaServico getEstatisticaServico() {
+        return estatisticaServico;
+    }
+    
+    public static IAutenticacaoServico getAutenticacaoServico() {
+        return autenticacaoServico;
+    }
+}
     
     // Para testes e desenvolvimento
     public static void main(String[] args) {

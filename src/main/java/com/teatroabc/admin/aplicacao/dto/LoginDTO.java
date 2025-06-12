@@ -1,3 +1,4 @@
+package com.teatroabc.admin.aplicacao.dto;
 
 
 /**

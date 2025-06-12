@@ -1,3 +1,5 @@
+package com.teatroabc.admin.infraestrutura.ui_swing.telas;
+
 
 
 import com.teatroabc.admin.aplicacao.dto.ReembolsoDTO;
@@ -16,6 +18,7 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Tela para gerenciamento de bilhetes vendidos.

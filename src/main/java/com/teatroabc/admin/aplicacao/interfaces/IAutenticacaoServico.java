@@ -1,4 +1,6 @@
+package com.teatroabc.admin.aplicacao.interfaces;
 
+import com.teatroabc.admin.aplicacao.interfaces.IAutenticacaoServico;
 import com.teatroabc.admin.aplicacao.dto.LoginDTO;
 import com.teatroabc.admin.dominio.entidades.Usuario;
 
