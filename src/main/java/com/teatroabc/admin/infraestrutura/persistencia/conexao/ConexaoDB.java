@@ -1,7 +1,5 @@
 package com.teatroabc.admin.infraestrutura.persistencia.conexao;
 
-
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -19,12 +17,42 @@ public class ConexaoDB {
     private String usuario;
     private String senha;
     private static final String ARQUIVO_PROPRIEDADES = "/database.properties";
+    private static boolean driverCarregado = false;
     
     /**
      * Construtor que inicializa as propriedades de conexão a partir do arquivo de configuração.
      */
     public ConexaoDB() {
         carregarPropriedades();
+        carregarDriver();
+    }
+    
+    /**
+     * Carrega o driver JDBC do MySQL.
+     */
+    private void carregarDriver() {
+        if (!driverCarregado) {
+            try {
+                // Tenta carregar o driver mais recente
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                driverCarregado = true;
+                System.out.println("Driver MySQL carregado com sucesso: com.mysql.cj.jdbc.Driver");
+            } catch (ClassNotFoundException e) {
+                System.err.println("Driver com.mysql.cj.jdbc.Driver não encontrado. Tentando driver legado...");
+                
+                try {
+                    // Tenta o driver legado
+                    Class.forName("com.mysql.jdbc.Driver");
+                    driverCarregado = true;
+                    System.out.println("Driver MySQL legado carregado: com.mysql.jdbc.Driver");
+                } catch (ClassNotFoundException e2) {
+                    System.err.println("ERRO CRÍTICO: Nenhum driver MySQL encontrado!");
+                    System.err.println("Certifique-se de que o MySQL Connector/J está no classpath.");
+                    System.err.println("Adicione a dependência no Maven/Gradle ou baixe o JAR manualmente.");
+                    e2.printStackTrace();
+                }
+            }
+        }
     }
     
     /**
@@ -39,20 +67,18 @@ public class ConexaoDB {
                 
                 this.url = propriedades.getProperty("url");
                 this.usuario = propriedades.getProperty("usuario", "root");
-                this.senha = propriedades.getProperty("senha", "");
+                this.senha = propriedades.getProperty("senha", "@Pitoco123");
                 
-                // Carrega o driver JDBC
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver");
-                } catch (ClassNotFoundException e) {
-                    System.err.println("Erro ao carregar o driver JDBC: " + e.getMessage());
-                    e.printStackTrace();
-                }
+                System.out.println("Propriedades carregadas do arquivo: " + ARQUIVO_PROPRIEDADES);
+                System.out.println("URL: " + this.url);
+                System.out.println("Usuário: " + this.usuario);
+                
             } else {
                 System.err.println("Arquivo de configuração não encontrado: " + ARQUIVO_PROPRIEDADES);
+                System.out.println("Usando configurações padrão...");
                 
                 // Valores padrão em caso de falha na leitura do arquivo
-                this.url = "jdbc:mysql://localhost:3306/teatro";
+                this.url = "jdbc:mysql://localhost:3306/teatro?useSSL=false&serverTimezone=UTC";
                 this.usuario = "root";
                 this.senha = "";
             }
@@ -61,7 +87,7 @@ public class ConexaoDB {
             e.printStackTrace();
             
             // Valores padrão em caso de falha na leitura do arquivo
-            this.url = "jdbc:mysql://localhost:3306/teatro";
+            this.url = "jdbc:mysql://localhost:3306/teatro?useSSL=false&serverTimezone=UTC";
             this.usuario = "root";
             this.senha = "";
         }
@@ -73,10 +99,26 @@ public class ConexaoDB {
      * @throws SQLException Em caso de erro na conexão
      */
     public Connection obterConexao() throws SQLException {
+        if (!driverCarregado) {
+            throw new SQLException("Driver JDBC não foi carregado. Verifique se o MySQL Connector/J está no classpath.");
+        }
+        
         try {
-            return DriverManager.getConnection(url, usuario, senha);
+            System.out.println("Tentando conectar com: " + url);
+            Connection conn = DriverManager.getConnection(url, usuario, senha);
+            System.out.println("Conexão estabelecida com sucesso!");
+            return conn;
         } catch (SQLException e) {
             System.err.println("Erro ao obter conexão com o banco de dados: " + e.getMessage());
+            System.err.println("URL: " + url);
+            System.err.println("Usuário: " + usuario);
+            
+            // Verifica se é erro de driver
+            if (e.getMessage().contains("No suitable driver")) {
+                System.err.println("SOLUÇÃO: Adicione o MySQL Connector/J ao classpath do projeto");
+                System.err.println("Maven: <dependency><groupId>mysql</groupId><artifactId>mysql-connector-java</artifactId><version>8.0.33</version></dependency>");
+            }
+            
             throw e;
         }
     }
@@ -86,51 +128,67 @@ public class ConexaoDB {
      * @return true se a conexão estiver disponível, false caso contrário
      */
     public boolean testarConexao() {
+        System.out.println("Testando conexão com o banco de dados...");
+        
+        if (!driverCarregado) {
+            System.err.println("Driver não foi carregado. Teste de conexão falhou.");
+            return false;
+        }
+        
         try (Connection conn = obterConexao()) {
-            return conn != null && !conn.isClosed();
+            boolean sucesso = conn != null && !conn.isClosed();
+            if (sucesso) {
+                System.out.println("Teste de conexão: SUCESSO");
+            } else {
+                System.out.println("Teste de conexão: FALHA - Conexão nula ou fechada");
+            }
+            return sucesso;
         } catch (SQLException e) {
-            System.err.println("Erro ao testar conexão com o banco de dados: " + e.getMessage());
+            System.err.println("Teste de conexão: FALHA - " + e.getMessage());
             return false;
         }
     }
     
     /**
-     * Obtém a URL de conexão.
-     * @return URL de conexão
+     * Verifica se o driver está disponível no classpath.
+     * @return true se o driver estiver disponível
      */
+    public static boolean isDriverDisponivel() {
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            return true;
+        } catch (ClassNotFoundException e) {
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                return true;
+            } catch (ClassNotFoundException e2) {
+                return false;
+            }
+        }
+    }
+    
+    // Getters e Setters
     public String getUrl() {
         return url;
     }
     
-    /**
-     * Define a URL de conexão.
-     * @param url URL de conexão
-     */
     public void setUrl(String url) {
         this.url = url;
     }
     
-    /**
-     * Obtém o nome de usuário para conexão.
-     * @return Nome de usuário
-     */
     public String getUsuario() {
         return usuario;
     }
     
-    /**
-     * Define o nome de usuário para conexão.
-     * @param usuario Nome de usuário
-     */
     public void setUsuario(String usuario) {
         this.usuario = usuario;
     }
     
-    /**
-     * Define a senha para conexão.
-     * @param senha Senha
-     */
     public void setSenha(String senha) {
         this.senha = senha;
+    }
+    
+    public boolean isDriverCarregado() {
+        return driverCarregado;
     }
 }

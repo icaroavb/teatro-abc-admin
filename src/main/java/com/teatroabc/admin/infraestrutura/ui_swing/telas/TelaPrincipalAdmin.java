@@ -257,10 +257,20 @@ public class TelaPrincipalAdmin extends JFrame {
     }
     
     // Classe auxiliar para obter serviços (seria substituída por injeção de dependência)
-   private static class ServiceLocator {
+ // Classe auxiliar para obter serviços (seria substituída por injeção de dependência)
+public static class ServiceLocator {
     private static IBilheteServico bilheteServico;
     private static IEstatisticaServico estatisticaServico;
     private static IAutenticacaoServico autenticacaoServico;
+    
+    // Método que estava faltando no Main.java
+    public static void inicializar(IBilheteServico bilheteServ, 
+                                  IEstatisticaServico estatisticaServ, 
+                                  IAutenticacaoServico autenticacaoServ) {
+        bilheteServico = bilheteServ;
+        estatisticaServico = estatisticaServ;
+        autenticacaoServico = autenticacaoServ;
+    }
     
     public static IBilheteServico getBilheteServico() {
         return bilheteServico;
