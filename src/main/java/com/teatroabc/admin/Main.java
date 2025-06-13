@@ -43,23 +43,46 @@ public class Main {
     /**
      * Configura o tema visual da aplicação.
      */
-    private static void configurarTema() {
-        try {
-            // Configura o look and feel para o tema do sistema
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            
-            // Sobrescreve algumas propriedades para personalização
-            UIManager.put("Panel.background", ConstantesUI.COR_FUNDO_MEDIO);
-            UIManager.put("OptionPane.background", ConstantesUI.COR_FUNDO_MEDIO);
-            UIManager.put("OptionPane.messageForeground", ConstantesUI.COR_TEXTO_CLARO);
-            UIManager.put("Button.background", ConstantesUI.COR_BOTAO_PRIMARIO);
-            UIManager.put("Button.foreground", Color.WHITE);
-            
-        } catch (Exception e) {
-            System.err.println("Erro ao configurar tema: " + e.getMessage());
-            e.printStackTrace();
+   private static void configurarTema() {
+    try {
+        // Configura o look and feel para o tema Nimbus (mais moderno que o padrão)
+        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            if ("Nimbus".equals(info.getName())) {
+                UIManager.setLookAndFeel(info.getClassName());
+                break;
+            }
         }
+        
+        // Sobrescreve algumas propriedades para personalização
+        UIManager.put("Panel.background", ConstantesUI.COR_FUNDO_MEDIO);
+        UIManager.put("OptionPane.background", ConstantesUI.COR_FUNDO_MEDIO);
+        UIManager.put("OptionPane.messageForeground", ConstantesUI.COR_TEXTO_CLARO);
+        
+        // Melhoria: Botões mais modernos e distintos
+        UIManager.put("Button.background", ConstantesUI.COR_BOTAO_PRIMARIO);
+        UIManager.put("Button.foreground", Color.WHITE);
+        UIManager.put("Button.arc", 10); // Bordas arredondadas (funciona no Nimbus)
+        UIManager.put("Button.margin", new Insets(8, 15, 8, 15)); // Mais espaço interno
+        
+        // Melhoria: Tabelas mais legíveis
+        UIManager.put("Table.showGrid", true);
+        UIManager.put("Table.gridColor", new Color(220, 220, 220));
+        UIManager.put("Table.intercellSpacing", new Dimension(5, 5));
+        UIManager.put("Table.rowHeight", 35); // Linhas mais altas para melhor legibilidade
+        
+        // Melhoria: Campos de texto mais claros
+        UIManager.put("TextField.background", Color.WHITE);
+        UIManager.put("TextField.caretForeground", ConstantesUI.COR_DESTAQUE);
+        UIManager.put("TextField.selectionBackground", ConstantesUI.COR_DESTAQUE);
+        UIManager.put("TextField.selectionForeground", Color.WHITE);
+        
+    } catch (Exception e) {
+        System.err.println("Erro ao configurar tema: " + e.getMessage());
+        e.printStackTrace();
     }
+}
+
+
     
     /**
      * Inicializa os componentes da aplicação e configura a injeção de dependências.

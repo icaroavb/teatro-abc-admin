@@ -1,28 +1,28 @@
 package com.teatroabc.admin.infraestrutura.ui_swing.componentes;
 
-
-
-
 import com.teatroabc.admin.dominio.entidades.BilheteVendido;
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableRowSorter;
 import java.awt.*;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.List;
 
 /**
  * Componente de tabela para exibição de bilhetes.
- * Inclui formatação personalizada e ordenação.
+ * Versão corrigida com melhor visualização.
  */
 public class TabelaBilhetes extends JTable {
     private final DefaultTableModel modelo;
     private List<BilheteVendido> bilhetes;
     private final SimpleDateFormat formatoData = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+    private final DecimalFormat formatoMoeda = new DecimalFormat("R$ #,##0.00");
     
     /**
      * Construtor da tabela de bilhetes.
@@ -57,7 +57,7 @@ public class TabelaBilhetes extends JTable {
         modelo.addColumn("Peça");
         modelo.addColumn("Turno");
         modelo.addColumn("Poltronas");
-        modelo.addColumn("Valor (R$)");
+        modelo.addColumn("Valor");
         modelo.addColumn("Reembolsado");
         
         setModel(modelo);
@@ -66,40 +66,49 @@ public class TabelaBilhetes extends JTable {
     
     private void configurarTabela() {
         // Configurações visuais
-        setRowHeight(30);
-        setShowGrid(true);
-        setGridColor(ConstantesUI.COR_BORDA);
+        setRowHeight(40);
+        setShowGrid(false);
+        setIntercellSpacing(new Dimension(0, 0));
         setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         setAutoCreateRowSorter(true);
+        setFillsViewportHeight(true);
         
-        // Fonte
-        setFont(new Font("Arial", Font.PLAIN, 12));
-        getTableHeader().setFont(new Font("Arial", Font.BOLD, 12));
+        // Fonte e cores
+        setFont(new Font("Arial", Font.PLAIN, 14));
+        setBackground(new Color(25, 40, 55));
+        setForeground(Color.WHITE);
+        setSelectionBackground(new Color(60, 90, 150));
+        setSelectionForeground(Color.WHITE);
         
-        // Cores
-        setBackground(Color.WHITE);
-        setForeground(Color.BLACK);
-        getTableHeader().setBackground(ConstantesUI.COR_FUNDO_ESCURO);
-        getTableHeader().setForeground(Color.WHITE);
+        // Configuração do cabeçalho
+        JTableHeader header = getTableHeader();
+        header.setFont(new Font("Arial", Font.BOLD, 14));
+        header.setBackground(new Color(30, 45, 60));
+        header.setForeground(new Color(180, 200, 220));
+        header.setBorder(BorderFactory.createEmptyBorder());
+        header.setPreferredSize(new Dimension(header.getWidth(), 45));
         
         // Tamanho das colunas
         TableColumnModel colunas = getColumnModel();
-        colunas.getColumn(0).setPreferredWidth(100);  // ID
-        colunas.getColumn(1).setPreferredWidth(120);  // CPF
-        colunas.getColumn(2).setPreferredWidth(180);  // Peça
-        colunas.getColumn(3).setPreferredWidth(100);  // Turno
-        colunas.getColumn(4).setPreferredWidth(120);  // Poltronas
-        colunas.getColumn(5).setPreferredWidth(100);  // Valor
-        colunas.getColumn(6).setPreferredWidth(100);  // Reembolsado
+        colunas.getColumn(0).setPreferredWidth(80);  // ID
+        colunas.getColumn(1).setPreferredWidth(130); // CPF
+        colunas.getColumn(2).setPreferredWidth(200); // Peça
+        colunas.getColumn(3).setPreferredWidth(100); // Turno
+        colunas.getColumn(4).setPreferredWidth(120); // Poltronas
+        colunas.getColumn(5).setPreferredWidth(100); // Valor
+        colunas.getColumn(6).setPreferredWidth(120); // Reembolsado
         
-        // Renderer para formatação personalizada
-        setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+        // Renderer personalizado para as células
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
+                                                          boolean isSelected, boolean hasFocus, int row, int column) {
                 
-                Component c = super.getTableCellRendererComponent(
-                        table, value, isSelected, hasFocus, row, column);
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                JLabel label = (JLabel) c;
+                
+                // Remove a borda do foco
+                label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5));
                 
                 // Obtém o índice do modelo, para quando a tabela estiver ordenada
                 int modelRow = table.convertRowIndexToModel(row);
@@ -108,40 +117,51 @@ public class TabelaBilhetes extends JTable {
                 if (!isSelected) {
                     boolean reembolsado = (boolean) modelo.getValueAt(modelRow, 6);
                     if (reembolsado) {
-                        c.setBackground(new Color(250, 220, 220)); // Vermelho claro para reembolsados
+                        label.setBackground(new Color(60, 30, 30)); // Vermelho escuro para reembolsados
+                        label.setForeground(new Color(220, 180, 180)); // Texto mais claro
                     } else {
-                        c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240)); // Listrado
+                        // Alterna cores para melhor legibilidade
+                        label.setBackground(row % 2 == 0 ? new Color(25, 40, 55) : new Color(30, 45, 60));
+                        label.setForeground(Color.WHITE);
                     }
                 }
                 
-                // Alinhamento
-                if (c instanceof JLabel) {
-                    JLabel label = (JLabel) c;
-                    
-                    if (column == 5) { // Coluna de Valor
-                        label.setHorizontalAlignment(SwingConstants.RIGHT); // Alinha à direita
-                    } else if (column == 6) { // Coluna de Reembolsado
-                        label.setHorizontalAlignment(SwingConstants.CENTER); // Centraliza
-                    } else {
-                        label.setHorizontalAlignment(SwingConstants.LEFT); // Alinha à esquerda
+                // Formata a coluna de valor
+                if (column == 5 && value != null) {
+                    if (value instanceof Double) {
+                        label.setText(formatoMoeda.format(value));
                     }
+                    label.setHorizontalAlignment(SwingConstants.RIGHT);
+                } else if (column == 6) {
+                    // Centraliza a coluna de reembolsado
+                    label.setHorizontalAlignment(SwingConstants.CENTER);
+                } else {
+                    label.setHorizontalAlignment(SwingConstants.LEFT);
                 }
                 
-                return c;
+                return label;
             }
-        });
+        };
         
-        // Renderer especial para a coluna "Reembolsado" (checkbox)
-        colunas.getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
+        // Aplica o renderer a todas as colunas exceto a de reembolso
+        for (int i = 0; i < getColumnCount(); i++) {
+            if (i != 6) { // Exceto a coluna de reembolso
+                getColumnModel().getColumn(i).setCellRenderer(renderer);
+            }
+        }
+        
+        // Renderer para a coluna "Reembolsado" (checkbox)
+        getColumnModel().getColumn(6).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value,
-                    boolean isSelected, boolean hasFocus, int row, int column) {
+                                                          boolean isSelected, boolean hasFocus, int row, int column) {
                 
+                // Cria um checkbox estilizado para a coluna de reembolso
                 JCheckBox checkBox = new JCheckBox();
                 checkBox.setSelected((Boolean) value);
                 checkBox.setHorizontalAlignment(SwingConstants.CENTER);
                 
-                // Cor de fundo
+                // Cor de fundo baseada no status
                 int modelRow = table.convertRowIndexToModel(row);
                 boolean reembolsado = (boolean) modelo.getValueAt(modelRow, 6);
                 
@@ -150,16 +170,24 @@ public class TabelaBilhetes extends JTable {
                     checkBox.setForeground(table.getSelectionForeground());
                 } else {
                     if (reembolsado) {
-                        checkBox.setBackground(new Color(250, 220, 220));
+                        checkBox.setBackground(new Color(60, 30, 30));
+                        checkBox.setForeground(new Color(220, 180, 180));
                     } else {
-                        checkBox.setBackground(row % 2 == 0 ? Color.WHITE : new Color(240, 240, 240));
+                        checkBox.setBackground(row % 2 == 0 ? new Color(25, 40, 55) : new Color(30, 45, 60));
+                        checkBox.setForeground(Color.WHITE);
                     }
-                    checkBox.setForeground(table.getForeground());
                 }
                 
                 return checkBox;
             }
         });
+        
+        // Remove a grade e linhas divisórias
+        setShowHorizontalLines(false);
+        setShowVerticalLines(false);
+        
+        // Configurar o cursor como mão ao passar sobre as linhas
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
     
     /**

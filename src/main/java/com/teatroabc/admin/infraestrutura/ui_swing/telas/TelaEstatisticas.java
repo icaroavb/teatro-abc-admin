@@ -1,7 +1,5 @@
 package com.teatroabc.admin.infraestrutura.ui_swing.telas;
 
-
-
 import com.teatroabc.admin.aplicacao.dto.EstatisticaDTO;
 import com.teatroabc.admin.aplicacao.interfaces.IBilheteServico;
 import com.teatroabc.admin.aplicacao.interfaces.IEstatisticaServico;
@@ -10,17 +8,20 @@ import com.teatroabc.admin.infraestrutura.ui_swing.componentes.GraficoBarras;
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Tela para visualização de estatísticas de vendas de bilhetes.
- * Exibe gráficos e indicadores-chave sobre vendas e reembolsos.
+ * Versão corrigida com design modernizado.
  */
 public class TelaEstatisticas extends JPanel {
     private final IEstatisticaServico estatisticaServico;
@@ -38,6 +39,12 @@ public class TelaEstatisticas extends JPanel {
     private JLabel lblQtdBilhetes;
     private JLabel lblQtdReembolsados;
     private JLabel lblUltimaAtualizacao;
+    private JProgressBar progressBar;
+    
+    // Formatos para exibição de valores
+    private final DecimalFormat formatoDinheiro = new DecimalFormat("R$ #,##0.00");
+    private final DecimalFormat formatoPorcentagem = new DecimalFormat("#.##%");
+    private final DecimalFormat formatoNumero = new DecimalFormat("#,##0");
     
     /**
      * Construtor da tela de estatísticas.
@@ -52,9 +59,9 @@ public class TelaEstatisticas extends JPanel {
         this.estatisticaServico = estatisticaServico;
         this.bilheteServico = bilheteServico;
         
-        setLayout(new BorderLayout(10, 10));
-        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        setBackground(ConstantesUI.COR_FUNDO_MEDIO);
+        setLayout(new BorderLayout(15, 15));
+        setBorder(new EmptyBorder(20, 20, 20, 20));
+        setBackground(new Color(25, 40, 55));
         
         inicializarComponentes();
         configurarAcoes();
@@ -62,150 +69,119 @@ public class TelaEstatisticas extends JPanel {
     }
     
     private void inicializarComponentes() {
-        // Título da tela
-        JPanel painelTitulo = new JPanel(new BorderLayout());
-        painelTitulo.setOpaque(false);
-        painelTitulo.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
+        // Painel de título e botões
+        JPanel painelTitulo = criarPainelTitulo();
+        add(painelTitulo, BorderLayout.NORTH);
         
-        JLabel lblTitulo = new JLabel("Estatísticas de Vendas");
-        lblTitulo.setFont(new Font("Arial", Font.BOLD, 22));
-        lblTitulo.setForeground(ConstantesUI.COR_TEXTO_CLARO);
+        // Painel central
+        JPanel painelCentral = new JPanel(new BorderLayout(0, 15));
+        painelCentral.setOpaque(false);
         
-        btnAtualizar = new JButton("Atualizar Estatísticas");
-        btnAtualizar.setFont(new Font("Arial", Font.PLAIN, 14));
-        btnAtualizar.setBackground(ConstantesUI.COR_BOTAO_SECUNDARIO);
-        btnAtualizar.setForeground(Color.WHITE);
-        btnAtualizar.setFocusPainted(false);
-        btnAtualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
-        painelTitulo.add(lblTitulo, BorderLayout.WEST);
-        painelTitulo.add(btnAtualizar, BorderLayout.EAST);
-        
-        // Painel de números (KPIs)
-        painelNumeros = criarPainelNumeros();
+        // Painel de indicadores
+        painelNumeros = criarPainelIndicadores();
+        painelCentral.add(painelNumeros, BorderLayout.NORTH);
         
         // Painel de gráficos
         painelGraficos = criarPainelGraficos();
+        painelCentral.add(painelGraficos, BorderLayout.CENTER);
         
-        // Painel de data de atualização
-        JPanel painelAtualizacao = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        painelAtualizacao.setOpaque(false);
-        
-        lblUltimaAtualizacao = new JLabel("Última atualização: Nunca");
-        lblUltimaAtualizacao.setFont(new Font("Arial", Font.ITALIC, 12));
-        lblUltimaAtualizacao.setForeground(ConstantesUI.COR_TEXTO_CLARO);
-        
-        painelAtualizacao.add(lblUltimaAtualizacao);
-        
-        // Layout principal
-        JPanel painelCentral = new JPanel(new GridBagLayout());
-        painelCentral.setOpaque(false);
-        
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.insets = new Insets(5, 5, 5, 5);
-        
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 1;
-        gbc.gridheight = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.3;
-        painelCentral.add(painelNumeros, gbc);
-        
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 1;
-        gbc.gridheight = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.7;
-        painelCentral.add(painelGraficos, gbc);
-        
-        // Montagem final
-        add(painelTitulo, BorderLayout.NORTH);
         add(painelCentral, BorderLayout.CENTER);
-        add(painelAtualizacao, BorderLayout.SOUTH);
+        
+        // Painel de status
+        JPanel painelStatus = criarPainelStatus();
+        add(painelStatus, BorderLayout.SOUTH);
     }
     
-    private JPanel criarPainelNumeros() {
-        JPanel painel = new JPanel(new GridLayout(1, 5, 10, 0));
+    private JPanel criarPainelTitulo() {
+        JPanel painel = new JPanel(new BorderLayout(10, 0));
         painel.setOpaque(false);
-        painel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(ConstantesUI.COR_BORDA),
-            "Indicadores",
-            TitledBorder.LEFT,
-            TitledBorder.TOP,
-            new Font("Arial", Font.BOLD, 14),
-            ConstantesUI.COR_TEXTO_CLARO
-        ));
+        painel.setBorder(new EmptyBorder(0, 0, 15, 0));
+        
+        // Título
+        JLabel lblTitulo = new JLabel("Estatísticas de Vendas");
+        lblTitulo.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTitulo.setForeground(Color.WHITE);
+        
+        // Subtítulo
+        JLabel lblSubtitulo = new JLabel("Dashboard de desempenho");
+        lblSubtitulo.setFont(new Font("Arial", Font.ITALIC, 14));
+        lblSubtitulo.setForeground(new Color(180, 180, 180));
+        
+        JPanel painelTexto = new JPanel(new BorderLayout());
+        painelTexto.setOpaque(false);
+        painelTexto.add(lblTitulo, BorderLayout.NORTH);
+        painelTexto.add(lblSubtitulo, BorderLayout.SOUTH);
+        
+        // Botão de atualizar
+        btnAtualizar = new JButton("Atualizar Estatísticas");
+        btnAtualizar.setFont(new Font("Arial", Font.BOLD, 14));
+        btnAtualizar.setBackground(new Color(52, 152, 219));
+        btnAtualizar.setForeground(Color.WHITE);
+        btnAtualizar.setFocusPainted(false);
+        btnAtualizar.setBorderPainted(true);
+        btnAtualizar.setBorder(new LineBorder(new Color(41, 128, 185), 1));
+        btnAtualizar.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnAtualizar.setPreferredSize(new Dimension(180, 40));
+        
+        painel.add(painelTexto, BorderLayout.WEST);
+        painel.add(btnAtualizar, BorderLayout.EAST);
+        
+        return painel;
+    }
+    
+    private JPanel criarPainelIndicadores() {
+        // Painel principal com layout de grid
+        JPanel painel = new JPanel(new GridLayout(1, 5, 15, 0));
+        painel.setOpaque(false);
+        painel.setBorder(criarBordaTitulada("Indicadores-Chave de Desempenho (KPIs)"));
         
         // Cartões de indicadores
-        painel.add(criarCartaoIndicador("Total de Vendas", "R$ 0,00", ConstantesUI.COR_DESTAQUE, lblTotalVendas = new JLabel()));
-        painel.add(criarCartaoIndicador("Total de Reembolsos", "R$ 0,00", new Color(217, 83, 79), lblTotalReembolsos = new JLabel()));
-        painel.add(criarCartaoIndicador("Taxa de Reembolso", "0%", new Color(240, 173, 78), lblTaxaReembolso = new JLabel()));
-        painel.add(criarCartaoIndicador("Bilhetes Vendidos", "0", new Color(91, 192, 222), lblQtdBilhetes = new JLabel()));
-        painel.add(criarCartaoIndicador("Bilhetes Reembolsados", "0", new Color(217, 83, 79), lblQtdReembolsados = new JLabel()));
+        painel.add(criarCartaoIndicador("Total de Vendas", "R$ 0,00", new Color(46, 204, 113), lblTotalVendas = new JLabel()));
+        painel.add(criarCartaoIndicador("Total de Reembolsos", "R$ 0,00", new Color(231, 76, 60), lblTotalReembolsos = new JLabel()));
+        painel.add(criarCartaoIndicador("Taxa de Reembolso", "0%", new Color(241, 196, 15), lblTaxaReembolso = new JLabel()));
+        painel.add(criarCartaoIndicador("Bilhetes Vendidos", "0", new Color(52, 152, 219), lblQtdBilhetes = new JLabel()));
+        painel.add(criarCartaoIndicador("Bilhetes Reembolsados", "0", new Color(231, 76, 60), lblQtdReembolsados = new JLabel()));
         
         return painel;
     }
     
     private JPanel criarCartaoIndicador(String titulo, String valorInicial, Color cor, JLabel labelValor) {
-        JPanel cartao = new JPanel();
-        cartao.setLayout(new BoxLayout(cartao, BoxLayout.Y_AXIS));
-        cartao.setBackground(ConstantesUI.COR_FUNDO_CLARO);
+        JPanel cartao = new JPanel(new BorderLayout(0, 10));
+        cartao.setBackground(new Color(34, 49, 63));
         cartao.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(cor, 1),
-            BorderFactory.createEmptyBorder(15, 10, 15, 10)
+            new LineBorder(cor, 2, true),
+            new EmptyBorder(15, 15, 15, 15)
         ));
         
+        // Título
         JLabel lblTitulo = new JLabel(titulo);
         lblTitulo.setFont(new Font("Arial", Font.BOLD, 14));
-        lblTitulo.setForeground(ConstantesUI.COR_TEXTO_ESCURO);
-        lblTitulo.setAlignmentX(Component.CENTER_ALIGNMENT);
+        lblTitulo.setForeground(new Color(180, 200, 220));
+        lblTitulo.setHorizontalAlignment(SwingConstants.CENTER);
         
+        // Valor
         labelValor.setText(valorInicial);
         labelValor.setFont(new Font("Arial", Font.BOLD, 24));
         labelValor.setForeground(cor);
-        labelValor.setAlignmentX(Component.CENTER_ALIGNMENT);
+        labelValor.setHorizontalAlignment(SwingConstants.CENTER);
         
-        cartao.add(lblTitulo);
-        cartao.add(Box.createVerticalStrut(10));
-        cartao.add(labelValor);
+        cartao.add(lblTitulo, BorderLayout.NORTH);
+        cartao.add(labelValor, BorderLayout.CENTER);
         
         return cartao;
     }
     
     private JPanel criarPainelGraficos() {
-        JPanel painel = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel painel = new JPanel(new GridLayout(1, 2, 15, 0));
         painel.setOpaque(false);
         
         // Gráfico de Vendas por Peça
-        JPanel painelGraficoPeca = new JPanel(new BorderLayout());
-        painelGraficoPeca.setBackground(ConstantesUI.COR_FUNDO_CLARO);
-        painelGraficoPeca.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(ConstantesUI.COR_BORDA),
-            "Vendas por Peça",
-            TitledBorder.LEFT,
-            TitledBorder.TOP,
-            new Font("Arial", Font.BOLD, 14),
-            ConstantesUI.COR_TEXTO_ESCURO
-        ));
-        
+        JPanel painelGraficoPeca = criarPainelGrafico("Vendas por Peça Teatral");
         graficoVendasPorPeca = new GraficoBarras();
         painelGraficoPeca.add(graficoVendasPorPeca, BorderLayout.CENTER);
         
         // Gráfico de Vendas por Turno
-        JPanel painelGraficoTurno = new JPanel(new BorderLayout());
-        painelGraficoTurno.setBackground(ConstantesUI.COR_FUNDO_CLARO);
-        painelGraficoTurno.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(ConstantesUI.COR_BORDA),
-            "Vendas por Turno",
-            TitledBorder.LEFT,
-            TitledBorder.TOP,
-            new Font("Arial", Font.BOLD, 14),
-            ConstantesUI.COR_TEXTO_ESCURO
-        ));
-        
+        JPanel painelGraficoTurno = criarPainelGrafico("Vendas por Turno");
         graficoVendasPorTurno = new GraficoBarras();
         painelGraficoTurno.add(graficoVendasPorTurno, BorderLayout.CENTER);
         
@@ -215,35 +191,92 @@ public class TelaEstatisticas extends JPanel {
         return painel;
     }
     
+    private JPanel criarPainelGrafico(String titulo) {
+        JPanel painel = new JPanel(new BorderLayout());
+        painel.setBackground(new Color(34, 49, 63));
+        painel.setBorder(criarBordaTitulada(titulo));
+        return painel;
+    }
+    
+    private JPanel criarPainelStatus() {
+        JPanel painel = new JPanel(new BorderLayout(10, 0));
+        painel.setOpaque(false);
+        painel.setBorder(new EmptyBorder(5, 0, 0, 0));
+        
+        // Data de atualização
+        lblUltimaAtualizacao = new JLabel("Última atualização: Nunca");
+        lblUltimaAtualizacao.setFont(new Font("Arial", Font.ITALIC, 12));
+        lblUltimaAtualizacao.setForeground(new Color(150, 160, 170));
+        
+        // Barra de progresso
+        progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        progressBar.setVisible(false);
+        progressBar.setPreferredSize(new Dimension(150, 5));
+        progressBar.setBorderPainted(false);
+        progressBar.setBackground(new Color(40, 50, 60));
+        progressBar.setForeground(new Color(46, 204, 113));
+        
+        JPanel painelProgress = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        painelProgress.setOpaque(false);
+        painelProgress.add(progressBar);
+        
+        painel.add(lblUltimaAtualizacao, BorderLayout.WEST);
+        painel.add(painelProgress, BorderLayout.CENTER);
+        
+        return painel;
+    }
+    
+    private TitledBorder criarBordaTitulada(String titulo) {
+        TitledBorder borda = BorderFactory.createTitledBorder(
+            BorderFactory.createLineBorder(new Color(60, 80, 100), 1),
+            titulo
+        );
+        borda.setTitleFont(new Font("Arial", Font.BOLD, 14));
+        borda.setTitleColor(new Color(180, 200, 220));
+        return borda;
+    }
+    
     private void configurarAcoes() {
         btnAtualizar.addActionListener(e -> carregarEstatisticas());
     }
     
     private void carregarEstatisticas() {
+        // Mostra a barra de progresso
+        progressBar.setVisible(true);
+        btnAtualizar.setEnabled(false);
+        
         SwingWorker<Map<String, Object>, Void> worker = new SwingWorker<>() {
             @Override
             protected Map<String, Object> doInBackground() {
                 Map<String, Object> resultado = new HashMap<>();
                 
-                // Obter todos os bilhetes (usaremos o bilheteServico diretamente para simplicidade)
-                List<BilheteVendido> todosBilhetes = bilheteServico.buscarTodos();
-                
-                // Totais básicos
-                BigDecimal totalVendas = bilheteServico.calcularTotalVendas();
-                BigDecimal totalReembolsos = bilheteServico.calcularTotalReembolsos();
-                int bilhetesReembolsados = bilheteServico.contarBilhetesReembolsados();
-                
-                resultado.put("totalVendas", totalVendas);
-                resultado.put("totalReembolsos", totalReembolsos);
-                resultado.put("qtdBilhetes", todosBilhetes.size());
-                resultado.put("qtdReembolsados", bilhetesReembolsados);
-                
-                // Dados para gráficos
-                Map<String, BigDecimal> vendasPorPeca = calcularVendasPorPeca(todosBilhetes);
-                Map<String, BigDecimal> vendasPorTurno = calcularVendasPorTurno(todosBilhetes);
-                
-                resultado.put("vendasPorPeca", vendasPorPeca);
-                resultado.put("vendasPorTurno", vendasPorTurno);
+                try {
+                    // Simular um pequeno delay para feedback visual
+                    Thread.sleep(500);
+                    
+                    // Obter todos os bilhetes
+                    List<BilheteVendido> todosBilhetes = bilheteServico.buscarTodos();
+                    
+                    // Totais básicos
+                    BigDecimal totalVendas = bilheteServico.calcularTotalVendas();
+                    BigDecimal totalReembolsos = bilheteServico.calcularTotalReembolsos();
+                    int bilhetesReembolsados = bilheteServico.contarBilhetesReembolsados();
+                    
+                    resultado.put("totalVendas", totalVendas);
+                    resultado.put("totalReembolsos", totalReembolsos);
+                    resultado.put("qtdBilhetes", todosBilhetes.size());
+                    resultado.put("qtdReembolsados", bilhetesReembolsados);
+                    
+                    // Dados para gráficos
+                    Map<String, BigDecimal> vendasPorPeca = estatisticaServico.calcularVendasPorPeca();
+                    Map<String, BigDecimal> vendasPorTurno = estatisticaServico.calcularVendasPorTurno();
+                    
+                    resultado.put("vendasPorPeca", vendasPorPeca);
+                    resultado.put("vendasPorTurno", vendasPorTurno);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 
                 return resultado;
             }
@@ -263,6 +296,10 @@ public class TelaEstatisticas extends JPanel {
                         "Erro",
                         JOptionPane.ERROR_MESSAGE
                     );
+                } finally {
+                    // Esconde a barra de progresso
+                    progressBar.setVisible(false);
+                    btnAtualizar.setEnabled(true);
                 }
             }
         };
@@ -272,11 +309,6 @@ public class TelaEstatisticas extends JPanel {
     
     @SuppressWarnings("unchecked")
     private void atualizarNumeros(Map<String, Object> dados) {
-        // Formatadores
-        DecimalFormat formatoDinheiro = new DecimalFormat("R$ #,##0.00");
-        DecimalFormat formatoPorcentagem = new DecimalFormat("#.##%");
-        DecimalFormat formatoNumero = new DecimalFormat("#,##0");
-        
         // Extrair dados
         BigDecimal totalVendas = (BigDecimal) dados.get("totalVendas");
         BigDecimal totalReembolsos = (BigDecimal) dados.get("totalReembolsos");
@@ -286,7 +318,7 @@ public class TelaEstatisticas extends JPanel {
         // Calcular taxa de reembolso
         double taxaReembolso = qtdBilhetes > 0 ? (double) qtdReembolsados / qtdBilhetes : 0;
         
-        // Atualizar labels
+        // Atualizar labels com animação de fadeIn
         lblTotalVendas.setText(formatoDinheiro.format(totalVendas));
         lblTotalReembolsos.setText(formatoDinheiro.format(totalReembolsos));
         lblTaxaReembolso.setText(formatoPorcentagem.format(taxaReembolso));
@@ -317,39 +349,7 @@ public class TelaEstatisticas extends JPanel {
     
     private void atualizarDataAtualizacao() {
         Date agora = new Date();
-        java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         lblUltimaAtualizacao.setText("Última atualização: " + sdf.format(agora));
-    }
-    
-    private Map<String, BigDecimal> calcularVendasPorPeca(List<BilheteVendido> bilhetes) {
-        Map<String, BigDecimal> resultado = new HashMap<>();
-        
-        for (BilheteVendido bilhete : bilhetes) {
-            if (bilhete.isReembolsado()) {
-                continue; // Ignora bilhetes reembolsados para esta análise
-            }
-            
-            String nomePeca = bilhete.getNomePeca();
-            BigDecimal valorAtual = resultado.getOrDefault(nomePeca, BigDecimal.ZERO);
-            resultado.put(nomePeca, valorAtual.add(bilhete.getPreco()));
-        }
-        
-        return resultado;
-    }
-    
-    private Map<String, BigDecimal> calcularVendasPorTurno(List<BilheteVendido> bilhetes) {
-        Map<String, BigDecimal> resultado = new HashMap<>();
-        
-        for (BilheteVendido bilhete : bilhetes) {
-            if (bilhete.isReembolsado()) {
-                continue; // Ignora bilhetes reembolsados para esta análise
-            }
-            
-            String turno = bilhete.getTurno();
-            BigDecimal valorAtual = resultado.getOrDefault(turno, BigDecimal.ZERO);
-            resultado.put(turno, valorAtual.add(bilhete.getPreco()));
-        }
-        
-        return resultado;
     }
 }

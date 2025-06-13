@@ -1,7 +1,5 @@
 package com.teatroabc.admin.infraestrutura.ui_swing.componentes;
 
-import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -13,7 +11,7 @@ import java.util.List;
 
 /**
  * Componente para exibição de gráficos de barras.
- * Suporta renderização de valores numéricos com rótulos.
+ * Versão corrigida com melhor visualização.
  */
 public class GraficoBarras extends JPanel {
     private Map<String, BigDecimal> dados;
@@ -22,22 +20,22 @@ public class GraficoBarras extends JPanel {
     
     private static final int LARGURA_BARRA = 40;
     private static final int ESPACAMENTO = 20;
-    private static final int MARGEM_SUPERIOR = 30;
+    private static final int MARGEM_SUPERIOR = 40;
     private static final int MARGEM_INFERIOR = 70;
     private static final int MARGEM_ESQUERDA = 50;
-    private static final int MARGEM_DIREITA = 20;
+    private static final int MARGEM_DIREITA = 30;
     
-    private Color[] cores = {
-        new Color(70, 130, 180),   // Azul Aço
-        new Color(60, 179, 113),   // Verde Médio do Mar
-        new Color(255, 165, 0),    // Laranja
-        new Color(186, 85, 211),   // Roxo Médio
-        new Color(220, 20, 60),    // Vermelho Carmesim
-        new Color(30, 144, 255),   // Azul Dodger
-        new Color(255, 215, 0),    // Ouro
-        new Color(128, 128, 0),    // Oliva
-        new Color(0, 128, 128),    // Verde-azulado
-        new Color(255, 20, 147)    // Rosa Profundo
+    private final Color[] cores = {
+        new Color(52, 152, 219),  // Azul
+        new Color(46, 204, 113),  // Verde
+        new Color(230, 126, 34),  // Laranja
+        new Color(155, 89, 182),  // Roxo
+        new Color(231, 76, 60),   // Vermelho
+        new Color(241, 196, 15),  // Amarelo
+        new Color(26, 188, 156),  // Verde água
+        new Color(41, 128, 185),  // Azul escuro
+        new Color(39, 174, 96),   // Verde escuro
+        new Color(211, 84, 0)     // Laranja escuro
     };
     
     /**
@@ -47,7 +45,7 @@ public class GraficoBarras extends JPanel {
         this.dados = new HashMap<>();
         this.titulo = "";
         
-        setBackground(Color.WHITE);
+        setBackground(new Color(34, 49, 63));
         setPreferredSize(new Dimension(400, 300));
     }
     
@@ -88,10 +86,10 @@ public class GraficoBarras extends JPanel {
         // Desenha o título se houver
         if (titulo != null && !titulo.isEmpty()) {
             g2d.setFont(new Font("Arial", Font.BOLD, 16));
-            g2d.setColor(ConstantesUI.COR_TEXTO_ESCURO);
+            g2d.setColor(Color.WHITE);
             FontMetrics fm = g2d.getFontMetrics();
             int larguraTitulo = fm.stringWidth(titulo);
-            g2d.drawString(titulo, (largura - larguraTitulo) / 2, 20);
+            g2d.drawString(titulo, (largura - larguraTitulo) / 2, 25);
         }
         
         // Se não houver dados, exibe mensagem
@@ -114,18 +112,26 @@ public class GraficoBarras extends JPanel {
         // Calcula a altura disponível para o gráfico
         int alturaGrafico = altura - MARGEM_SUPERIOR - MARGEM_INFERIOR;
         
-        // Verifica se há dados suficientes para desenhar
+        // Verifica se há espaço suficiente para desenhar
         if (alturaGrafico <= 0) {
             g2d.dispose();
             return;
         }
         
-        // Calcula a largura total necessária para todas as barras
-        int larguraNecessaria = dados.size() * (LARGURA_BARRA + ESPACAMENTO) - ESPACAMENTO;
-        int xInicial = Math.max(MARGEM_ESQUERDA, (largura - larguraNecessaria) / 2);
-        
         // Desenha os eixos
-        desenharEixos(g2d, xInicial, MARGEM_SUPERIOR, larguraNecessaria, alturaGrafico);
+        desenharEixos(g2d, MARGEM_ESQUERDA, MARGEM_SUPERIOR, alturaGrafico);
+        
+        // Calcula a largura disponível para todas as barras
+        int larguraDisponivel = largura - MARGEM_ESQUERDA - MARGEM_DIREITA;
+        
+        // Calcula a largura de cada barra, ajustando se necessário
+        int numBarras = dados.size();
+        int larguraBarra = Math.min(LARGURA_BARRA, (larguraDisponivel - (numBarras - 1) * ESPACAMENTO) / numBarras);
+        if (larguraBarra < 10) larguraBarra = 10; // Largura mínima
+        
+        // Calcula a largura total necessária para todas as barras
+        int larguraNecessaria = numBarras * (larguraBarra + ESPACAMENTO) - ESPACAMENTO;
+        int xInicial = Math.max(MARGEM_ESQUERDA, (largura - larguraNecessaria) / 2);
         
         // Desenha as barras
         int indice = 0;
@@ -137,7 +143,7 @@ public class GraficoBarras extends JPanel {
             Color corBarra = cores[indice % cores.length];
             
             // Calcula a posição e tamanho da barra
-            int x = xInicial + indice * (LARGURA_BARRA + ESPACAMENTO);
+            int x = xInicial + indice * (larguraBarra + ESPACAMENTO);
             int alturaValor = valor.multiply(BigDecimal.valueOf(alturaGrafico))
                     .divide(valorMaximo, 0, BigDecimal.ROUND_DOWN)
                     .intValue();
@@ -149,19 +155,23 @@ public class GraficoBarras extends JPanel {
             
             int y = MARGEM_SUPERIOR + alturaGrafico - alturaValor;
             
-            // Desenha a barra
-            g2d.setColor(corBarra);
-            g2d.fillRect(x, y, LARGURA_BARRA, alturaValor);
+            // Desenha a barra com um gradiente
+            GradientPaint gradiente = new GradientPaint(
+                x, y, corBarra,
+                x, y + alturaValor, corBarra.darker()
+            );
+            g2d.setPaint(gradiente);
+            g2d.fillRect(x, y, larguraBarra, alturaValor);
             
             // Contorno da barra
             g2d.setColor(corBarra.darker());
-            g2d.drawRect(x, y, LARGURA_BARRA, alturaValor);
+            g2d.drawRect(x, y, larguraBarra, alturaValor);
             
             // Desenha o valor acima da barra
-            desenharValorDaBarra(g2d, valor, x, y, LARGURA_BARRA);
+            desenharValorDaBarra(g2d, valor, x, y, larguraBarra);
             
             // Desenha o rótulo abaixo da barra
-            desenharRotuloBarra(g2d, chave, x, MARGEM_SUPERIOR + alturaGrafico, LARGURA_BARRA);
+            desenharRotuloBarra(g2d, chave, x, MARGEM_SUPERIOR + alturaGrafico, larguraBarra);
             
             indice++;
         }
@@ -169,15 +179,22 @@ public class GraficoBarras extends JPanel {
         g2d.dispose();
     }
     
-    private void desenharEixos(Graphics2D g2d, int x, int y, int largura, int altura) {
-        g2d.setColor(ConstantesUI.COR_TEXTO_ESCURO);
-        g2d.setStroke(new BasicStroke(1.5f));
+    private void desenharEixos(Graphics2D g2d, int x, int y, int altura) {
+        g2d.setColor(new Color(150, 160, 170));
+        g2d.setStroke(new BasicStroke(1.0f));
         
         // Eixo Y (vertical)
-        g2d.drawLine(x - 5, y, x - 5, y + altura);
+        g2d.drawLine(x, y, x, y + altura);
         
         // Eixo X (horizontal)
-        g2d.drawLine(x - 5, y + altura, x + largura, y + altura);
+        g2d.drawLine(x, y + altura, getWidth() - MARGEM_DIREITA, y + altura);
+        
+        // Desenha linhas horizontais de referência
+        g2d.setColor(new Color(60, 70, 80));
+        for (int i = 1; i <= 4; i++) {
+            int yLinha = y + altura - (altura * i / 4);
+            g2d.drawLine(x, yLinha, getWidth() - MARGEM_DIREITA, yLinha);
+        }
     }
     
     private void desenharValorDaBarra(Graphics2D g2d, BigDecimal valor, int x, int y, int larguraBarra) {
@@ -189,28 +206,28 @@ public class GraficoBarras extends JPanel {
         
         // Rotaciona o texto se for muito largo para a barra
         if (larguraTexto > larguraBarra * 1.5) {
-            g2d.setColor(Color.BLACK);
+            g2d.setColor(Color.WHITE);
             
             // Salva a transformação atual
             AffineTransform transformacaoOriginal = g2d.getTransform();
             
             // Rotaciona e posiciona o texto
-            g2d.rotate(-Math.PI / 2); // Rotaciona 90 graus no sentido anti-horário
-            g2d.drawString(valorFormatado, -y + 5, x + larguraBarra / 2 + fm.getAscent() / 2);
+            g2d.rotate(-Math.PI / 2, x + larguraBarra / 2, y - 5); // Rotaciona 90 graus
+            g2d.drawString(valorFormatado, x + larguraBarra / 2 - larguraTexto / 2, y - 5);
             
             // Restaura a transformação
             g2d.setTransform(transformacaoOriginal);
         } else {
             // Texto horizontal normal
-            g2d.setColor(Color.BLACK);
+            g2d.setColor(Color.WHITE);
             int xTexto = x + (larguraBarra - larguraTexto) / 2;
             g2d.drawString(valorFormatado, xTexto, y - 5);
         }
     }
     
     private void desenharRotuloBarra(Graphics2D g2d, String rotulo, int x, int y, int larguraBarra) {
-        g2d.setFont(new Font("Arial", Font.BOLD, 10));
-        g2d.setColor(ConstantesUI.COR_TEXTO_ESCURO);
+        g2d.setFont(new Font("Arial", Font.BOLD, 11));
+        g2d.setColor(new Color(180, 200, 220));
         
         FontMetrics fm = g2d.getFontMetrics();
         
@@ -223,11 +240,9 @@ public class GraficoBarras extends JPanel {
             // Salva a transformação atual
             AffineTransform transformacaoOriginal = g2d.getTransform();
             
-            // Rotaciona e posiciona o texto
-            g2d.rotate(Math.PI / 4); // Rotaciona 45 graus
-            double novoX = (x + larguraBarra / 2) * Math.cos(Math.PI / 4) - (y + 15) * Math.sin(Math.PI / 4);
-            double novoY = (x + larguraBarra / 2) * Math.sin(Math.PI / 4) + (y + 15) * Math.cos(Math.PI / 4);
-            g2d.drawString(rotuloAjustado, (float)novoX, (float)novoY);
+            // Rotaciona e posiciona o texto em 45 graus
+            g2d.rotate(Math.PI / 4, x + larguraBarra / 2, y + 10);
+            g2d.drawString(rotuloAjustado, x + larguraBarra / 2 - larguraTexto / 2, y + 10);
             
             // Restaura a transformação
             g2d.setTransform(transformacaoOriginal);
@@ -254,7 +269,7 @@ public class GraficoBarras extends JPanel {
     
     private void desenharMensagemSemDados(Graphics2D g2d, int largura, int altura) {
         g2d.setFont(new Font("Arial", Font.ITALIC, 14));
-        g2d.setColor(Color.GRAY);
+        g2d.setColor(new Color(150, 160, 170));
         
         String mensagem = "Sem dados para exibir";
         FontMetrics fm = g2d.getFontMetrics();

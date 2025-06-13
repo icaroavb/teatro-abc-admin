@@ -1,20 +1,20 @@
 package com.teatroabc.admin.infraestrutura.ui_swing.componentes;
 
-
-
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ValidadorCampos;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import javax.swing.text.MaskFormatter;
 import java.text.ParseException;
 
 /**
  * Componente para filtros de busca de bilhetes.
- * Permite filtrar por CPF, ID do bilhete ou peça, além de mostrar/esconder bilhetes reembolsados.
+ * Versão corrigida com interface melhorada.
  */
 public class PainelFiltros extends JPanel {
     private JTextField txtBusca;
@@ -35,13 +35,15 @@ public class PainelFiltros extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setOpaque(false);
         setPreferredSize(new Dimension(250, 0));
+        
+        // Borda com título
         setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(ConstantesUI.COR_BORDA),
-            "Filtros",
+            BorderFactory.createLineBorder(new Color(60, 80, 100), 1),
+            "Filtros de Busca",
             TitledBorder.LEFT,
             TitledBorder.TOP,
             new Font("Arial", Font.BOLD, 14),
-            ConstantesUI.COR_TEXTO_CLARO
+            new Color(180, 200, 220)
         ));
         
         inicializarComponentes();
@@ -49,77 +51,90 @@ public class PainelFiltros extends JPanel {
     }
     
     private void inicializarComponentes() {
-        // Grupo de Busca
-        JPanel painelBusca = new JPanel();
-        painelBusca.setLayout(new BoxLayout(painelBusca, BoxLayout.Y_AXIS));
-        painelBusca.setOpaque(false);
-        painelBusca.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Painel de conteúdo com espaçamento
+        JPanel painelConteudo = new JPanel();
+        painelConteudo.setLayout(new BoxLayout(painelConteudo, BoxLayout.Y_AXIS));
+        painelConteudo.setOpaque(false);
+        painelConteudo.setBorder(new EmptyBorder(20, 15, 15, 15));
         
         // Tipo de Busca
         JLabel lblTipoBusca = new JLabel("Tipo de Busca:");
-        lblTipoBusca.setFont(new Font("Arial", Font.BOLD, 12));
-        lblTipoBusca.setForeground(ConstantesUI.COR_TEXTO_CLARO);
+        lblTipoBusca.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTipoBusca.setForeground(new Color(180, 200, 220));
         lblTipoBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         cmbTipoBusca = new JComboBox<>(new String[]{"ID do Bilhete", "CPF do Cliente", "Nome da Peça"});
-        cmbTipoBusca.setFont(new Font("Arial", Font.PLAIN, 12));
-        cmbTipoBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        cmbTipoBusca.setFont(new Font("Arial", Font.PLAIN, 14));
+        cmbTipoBusca.setForeground(Color.WHITE);
+        cmbTipoBusca.setBackground(new Color(40, 60, 85));
+        cmbTipoBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         cmbTipoBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         // Campo de Busca
         JLabel lblBusca = new JLabel("Termo de Busca:");
-        lblBusca.setFont(new Font("Arial", Font.BOLD, 12));
-        lblBusca.setForeground(ConstantesUI.COR_TEXTO_CLARO);
+        lblBusca.setFont(new Font("Arial", Font.BOLD, 14));
+        lblBusca.setForeground(new Color(180, 200, 220));
         lblBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
+        lblBusca.setBorder(new EmptyBorder(15, 0, 5, 0));
         
         txtBusca = new JTextField();
-        txtBusca.setFont(new Font("Arial", Font.PLAIN, 12));
-        txtBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        txtBusca.setFont(new Font("Arial", Font.PLAIN, 14));
+        txtBusca.setForeground(Color.WHITE);
+        txtBusca.setBackground(new Color(40, 60, 85));
+        txtBusca.setCaretColor(Color.WHITE);
+        txtBusca.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(60, 80, 120), 1),
+            new EmptyBorder(8, 10, 8, 10)
+        ));
+        txtBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
         txtBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         // Opção para mostrar reembolsados
         chkMostrarReembolsados = new JCheckBox("Mostrar Bilhetes Reembolsados");
-        chkMostrarReembolsados.setFont(new Font("Arial", Font.PLAIN, 12));
-        chkMostrarReembolsados.setForeground(ConstantesUI.COR_TEXTO_CLARO);
+        chkMostrarReembolsados.setFont(new Font("Arial", Font.PLAIN, 14));
+        chkMostrarReembolsados.setForeground(new Color(180, 200, 220));
         chkMostrarReembolsados.setOpaque(false);
         chkMostrarReembolsados.setAlignmentX(Component.LEFT_ALIGNMENT);
         chkMostrarReembolsados.setSelected(true); // Padrão: mostrar todos
+        chkMostrarReembolsados.setBorder(new EmptyBorder(15, 0, 15, 0));
         
         // Botões
-        JPanel painelBotoes = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
+        JPanel painelBotoes = new JPanel(new GridLayout(1, 2, 10, 0));
         painelBotoes.setOpaque(false);
+        painelBotoes.setAlignmentX(Component.LEFT_ALIGNMENT);
         
         btnBuscar = new JButton("Buscar");
-        btnBuscar.setFont(new Font("Arial", Font.BOLD, 12));
-        btnBuscar.setBackground(ConstantesUI.COR_BOTAO_PRIMARIO);
+        btnBuscar.setFont(new Font("Arial", Font.BOLD, 14));
+        btnBuscar.setBackground(new Color(46, 204, 113));
         btnBuscar.setForeground(Color.WHITE);
         btnBuscar.setFocusPainted(false);
+        btnBuscar.setBorderPainted(true);
+        btnBuscar.setBorder(new LineBorder(new Color(36, 174, 93), 1));
         btnBuscar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         btnLimpar = new JButton("Limpar");
-        btnLimpar.setFont(new Font("Arial", Font.PLAIN, 12));
-        btnLimpar.setBackground(ConstantesUI.COR_BOTAO_SECUNDARIO);
+        btnLimpar.setFont(new Font("Arial", Font.PLAIN, 14));
+        btnLimpar.setBackground(new Color(52, 152, 219));
         btnLimpar.setForeground(Color.WHITE);
         btnLimpar.setFocusPainted(false);
+        btnLimpar.setBorderPainted(true);
+        btnLimpar.setBorder(new LineBorder(new Color(42, 128, 185), 1));
         btnLimpar.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         painelBotoes.add(btnBuscar);
         painelBotoes.add(btnLimpar);
         
         // Adiciona componentes ao painel principal
-        painelBusca.add(lblTipoBusca);
-        painelBusca.add(Box.createVerticalStrut(5));
-        painelBusca.add(cmbTipoBusca);
-        painelBusca.add(Box.createVerticalStrut(15));
-        painelBusca.add(lblBusca);
-        painelBusca.add(Box.createVerticalStrut(5));
-        painelBusca.add(txtBusca);
-        painelBusca.add(Box.createVerticalStrut(15));
-        painelBusca.add(chkMostrarReembolsados);
-        painelBusca.add(Box.createVerticalStrut(20));
-        painelBusca.add(painelBotoes);
+        painelConteudo.add(lblTipoBusca);
+        painelConteudo.add(Box.createVerticalStrut(5));
+        painelConteudo.add(cmbTipoBusca);
+        painelConteudo.add(lblBusca);
+        painelConteudo.add(Box.createVerticalStrut(5));
+        painelConteudo.add(txtBusca);
+        painelConteudo.add(chkMostrarReembolsados);
+        painelConteudo.add(painelBotoes);
         
-        add(painelBusca);
+        add(painelConteudo);
         add(Box.createVerticalGlue()); // Empurra tudo para cima
     }
     
@@ -171,6 +186,7 @@ public class PainelFiltros extends JPanel {
                         MaskFormatter mask = new MaskFormatter("###.###.###-##");
                         mask.setPlaceholderCharacter('_');
                         JFormattedTextField txtCpf = new JFormattedTextField(mask);
+                        estilizarCampo(txtCpf);
                         txtBusca = txtCpf;
                     } catch (ParseException ex) {
                         txtBusca = new JTextField();
@@ -181,16 +197,29 @@ public class PainelFiltros extends JPanel {
                     break;
             }
             
-            // Configura o novo componente
-            txtBusca.setFont(new Font("Arial", Font.PLAIN, 12));
-            txtBusca.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-            txtBusca.setAlignmentX(Component.LEFT_ALIGNMENT);
+            // Estiliza o campo se for um JTextField normal
+            if (!(txtBusca instanceof JFormattedTextField)) {
+                estilizarCampo(txtBusca);
+            }
             
             // Adiciona o novo componente na mesma posição
             parent.add(txtBusca, index);
             parent.revalidate();
             parent.repaint();
         }
+    }
+    
+    private void estilizarCampo(JTextField campo) {
+        campo.setFont(new Font("Arial", Font.PLAIN, 14));
+        campo.setForeground(Color.WHITE);
+        campo.setBackground(new Color(40, 60, 85));
+        campo.setCaretColor(Color.WHITE);
+        campo.setBorder(BorderFactory.createCompoundBorder(
+            new LineBorder(new Color(60, 80, 120), 1),
+            new EmptyBorder(8, 10, 8, 10)
+        ));
+        campo.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+        campo.setAlignmentX(Component.LEFT_ALIGNMENT);
     }
     
     private boolean validarCampos() {
