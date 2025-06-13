@@ -5,7 +5,6 @@ import com.teatroabc.admin.aplicacao.interfaces.IBilheteServico;
 import com.teatroabc.admin.dominio.entidades.BilheteVendido;
 import com.teatroabc.admin.infraestrutura.ui_swing.componentes.PainelFiltros;
 import com.teatroabc.admin.infraestrutura.ui_swing.componentes.TabelaBilhetes;
-import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,13 +12,14 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Tela para gerenciamento de bilhetes vendidos.
- * Versão corrigida com design melhorado.
+ * Versão corrigida com tratamento adequado da data de reembolso.
  */
 public class TelaGerenciamentoBilhetes extends JPanel {
     private final IBilheteServico bilheteServico;
@@ -32,6 +32,9 @@ public class TelaGerenciamentoBilhetes extends JPanel {
     private JLabel lblStatus;
     private JLabel lblContagem;
     private JProgressBar progressBar;
+    
+    // Formatador para datas (LocalDateTime)
+    private final DateTimeFormatter formatoData = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
     
     /**
      * Construtor da tela de gerenciamento de bilhetes.
@@ -356,7 +359,7 @@ public class TelaGerenciamentoBilhetes extends JPanel {
         lblContagem.setText(quantidade + " bilhetes encontrados");
     }
     
-    private void mostrarDetalhesBilhete(BilheteVendido bilhete) {
+     private void mostrarDetalhesBilhete(BilheteVendido bilhete) {
         // Criar o painel de detalhes do bilhete
         JPanel painelDetalhes = new JPanel();
         painelDetalhes.setLayout(new BoxLayout(painelDetalhes, BoxLayout.Y_AXIS));
@@ -392,10 +395,11 @@ public class TelaGerenciamentoBilhetes extends JPanel {
         DecimalFormat df = new DecimalFormat("R$ #,##0.00");
         adicionarCampoInfo(painelInfo, "Preço:", df.format(bilhete.getPreco()));
         
-        // Data de reembolso se aplicável
+        // Data de reembolso se aplicável - ESTA É A PARTE CORRIGIDA
         if (bilhete.isReembolsado() && bilhete.getDataReembolso() != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-            adicionarCampoInfo(painelInfo, "Data do Reembolso:", sdf.format(bilhete.getDataReembolso()));
+            LocalDateTime dataReembolso = bilhete.getDataReembolso();
+            String dataFormatada = dataReembolso.format(formatoData);
+            adicionarCampoInfo(painelInfo, "Data do Reembolso:", dataFormatada);
         }
         
         // Montar o painel
