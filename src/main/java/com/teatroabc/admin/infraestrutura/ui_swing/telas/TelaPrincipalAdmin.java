@@ -60,11 +60,13 @@ public class TelaPrincipalAdmin extends JFrame {
         setTitle("Teatro ABC - Sistema Administrativo");
         setSize(1280, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setMinimumSize(new Dimension(1024, 768));
         
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(23, 42, 58));
+
+        
+        //setLocationRelativeTo(null);
+        //setMinimumSize(new Dimension(1024, 768));
+        //setLayout(new BorderLayout());
+        //getContentPane().setBackground(new Color(23, 42, 58));
     }
     
     private void inicializarComponentes() {

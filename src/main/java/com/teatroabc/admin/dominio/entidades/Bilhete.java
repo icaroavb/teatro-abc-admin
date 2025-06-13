@@ -26,6 +26,8 @@ public class Bilhete {
     private final BigDecimal valorDesconto;
     private final BigDecimal valorTotal;
     private final LocalDateTime dataHoraCompra;
+    private boolean reembolsado; //atributo diferenciado da classe bilhete do domínio - > 
+    private LocalDateTime localDateTime;  //atributo diferenciado da classe bilhete do domínio - >
 
     /**
      * Construtor principal refatorado para criar uma instância de Bilhete.
