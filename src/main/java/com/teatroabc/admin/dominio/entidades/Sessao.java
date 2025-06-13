@@ -30,23 +30,45 @@ public class Sessao {
      */
     public Sessao(String id, Peca peca, LocalDateTime dataHora, Turno turno) {
         // Validação para garantir que a sessão não seja criada em um estado inválido.
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("ID da sessão não pode ser nulo ou vazio.");
-        }
-        if (peca == null) {
-            throw new IllegalArgumentException("A Peça não pode ser nula para uma Sessão.");
-        }
-        if (dataHora == null) {
-            throw new IllegalArgumentException("A data e hora não podem ser nulas para uma Sessão.");
-        }
-        if (turno == null) {
-            throw new IllegalArgumentException("O Turno não pode ser nulo para uma Sessão.");
-        }
+        apurarValidacoes(id, peca, dataHora, turno);
         
         this.id = id;
         this.peca = peca;
         this.dataHora = dataHora;
         this.turno = turno;
+    } 
+    //encapsulamento da lógica de validação
+    private boolean verificarID (String id) {
+        return id == null || id.trim().isEmpty();
+    }
+    private boolean verificarPeca (Peca peca){
+        return peca == null;
+    }
+    private boolean verificarDataHora (LocalDateTime dataHora){
+        return dataHora == null;
+    }
+    private boolean verificarTurno (Turno turno){
+        return turno == null;
+    }
+
+    private void apurarValidacoes (
+                                    String id,
+                                    Peca peca,
+                                    LocalDateTime dataHora,
+                                    Turno turno
+                                    ) {
+        if (verificarID(id)) {
+            throw new IllegalArgumentException("ID da sessão não pode ser nulo ou vazio.");
+        }
+        if (verificarPeca(peca)) {
+            throw new IllegalArgumentException("A Peça não pode ser nula para uma Sessão.");
+        }
+        if (verificarDataHora(dataHora)) {
+            throw new IllegalArgumentException("A data e hora não podem ser nulas para uma Sessão.");
+        }
+        if (verificarTurno(turno)) {
+            throw new IllegalArgumentException("O Turno não pode ser nulo para uma Sessão.");
+        }                                    
     }
 
     // --- Getters ---

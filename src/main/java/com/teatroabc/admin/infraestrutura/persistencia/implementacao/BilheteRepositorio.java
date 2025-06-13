@@ -36,6 +36,7 @@ public class BilheteRepositorio implements IRepositorioBilhete {
         this.conexaoDB = conexaoDB;
     }
     
+    //haveria se modificar aqui os bilhetes
     @Override
     public List<BilheteVendido> buscarTodos() {
         List<BilheteVendido> bilhetes = new ArrayList<>();
