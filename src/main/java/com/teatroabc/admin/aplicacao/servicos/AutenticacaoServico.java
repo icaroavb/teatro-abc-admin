@@ -121,7 +121,7 @@ public class AutenticacaoServico implements IAutenticacaoServico {
         
         return true;
     }
-    
+        
     @Override
     public void encerrarSessao(String token) {
         if (token != null) {

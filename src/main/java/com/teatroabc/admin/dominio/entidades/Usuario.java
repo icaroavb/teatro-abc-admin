@@ -1,8 +1,5 @@
 package com.teatroabc.admin.dominio.entidades;
 
-
-
-
 import com.teatroabc.admin.dominio.enums.TipoUsuario;
 import java.util.Objects;
 
