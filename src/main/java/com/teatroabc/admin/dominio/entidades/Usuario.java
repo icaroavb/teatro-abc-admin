@@ -25,20 +25,35 @@ public class Usuario {
      * @param admin Flag que indica se o usuário é administrador
      */
     public Usuario(String id, String nome, String nomeUsuario, boolean admin) {
-        if (id == null || id.trim().isEmpty()) {
-            throw new IllegalArgumentException("ID do usuário não pode ser nulo ou vazio");
-        }
-        if (nome == null || nome.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome do usuário não pode ser nulo ou vazio");
-        }
-        if (nomeUsuario == null || nomeUsuario.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome de usuário não pode ser nulo ou vazio");
-        }
+        //lógica de validação foi agora encapsulada
+        validarDadosEssenciais();
         
         this.id = id;
         this.nome = nome;
         this.nomeUsuario = nomeUsuario;
         this.admin = admin;
+    }
+    //encapsular a lógica de validação dos dados de usuário
+    private boolean validarId (String id){
+        return id == null || id.trim().isEmpty();
+    }
+    private boolean validarNome (String nome){
+        return nome == null || nome.trim().isEmpty();
+    }
+    private boolean validarNomeUsuario (String nomeUsuario){
+        return nomeUsuario == null || nomeUsuario.trim().isEmpty();
+    }
+    //encapsular a lógica de validação total 
+    private void validarDadosEssenciais (){
+        if (validarId(id)) {
+            throw new IllegalArgumentException("ID do usuário não pode ser nulo ou vazio");
+        }
+        if (validarNome(nomeUsuario)) {
+            throw new IllegalArgumentException("Nome do usuário não pode ser nulo ou vazio");
+        }
+        if (validarNomeUsuario(nomeUsuario)) {
+            throw new IllegalArgumentException("Nome de usuário não pode ser nulo ou vazio");
+        }
     }
     
     /**
@@ -52,6 +67,7 @@ public class Usuario {
             return true;
         }
         
+        //essa parte da lógica não deve ficar aqui!
         // Implementar lógica de permissões específicas para usuários não-admin
         // Por exemplo, um funcionário pode ter permissão para visualizar bilhetes
         // mas não para fazer reembolsos
@@ -97,6 +113,7 @@ public class Usuario {
         this.token = token;
     }
     
+    //métodos padrão
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+//Atenção - deve haver coincidência com a classe bilhete presente na outra classe
 /**
  * Entidade de domínio que representa um bilhete vendido no sistema.
  * Mapeia os dados da tabela de vendas do banco de dados.
@@ -24,9 +25,16 @@ public class BilheteVendido {
     /**
      * Construtor principal para criar instância a partir do banco de dados
      */
-    public BilheteVendido(String idIngresso, String cpf, String nomePeca, 
-                          String turno, String numeroPoltronas, String nomeSessao,
-                          int capacidade, BigDecimal preco) {
+    public BilheteVendido(
+                        String idIngresso, 
+                        String cpf, 
+                        String nomePeca, 
+                        String turno, 
+                        String numeroPoltronas, 
+                        String nomeSessao,
+                        int capacidade, 
+                        BigDecimal preco) 
+                        {
         validarParametrosObrigatorios(idIngresso, cpf, nomePeca, turno, preco);
         
         this.idIngresso = idIngresso;
