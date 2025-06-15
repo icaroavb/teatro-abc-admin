@@ -1,9 +1,6 @@
 package com.teatroabc.admin.aplicacao.interfaces;
 
 
-
-
-
 import com.teatroabc.admin.dominio.entidades.BilheteVendido;
 import java.time.LocalDateTime;
 import java.util.List;

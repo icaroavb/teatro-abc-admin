@@ -1,6 +1,5 @@
 package com.teatroabc.admin.infraestrutura.ui_swing.componentes;
 
-import com.teatroabc.admin.infraestrutura.ui_swing.util.ConstantesUI;
 import com.teatroabc.admin.infraestrutura.ui_swing.util.ValidadorCampos;
 
 import javax.swing.*;
