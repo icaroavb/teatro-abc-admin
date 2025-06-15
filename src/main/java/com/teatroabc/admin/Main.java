@@ -76,7 +76,7 @@ public class Main {
         SwingUtilities.invokeLater(() -> {
             // A tela de login agora recebe os serviços de que precisa.
             // Neste caso, apenas o serviço de autenticação.
-            TelaLogin telaLogin = new TelaLogin(autenticacaoServico);
+            TelaLogin telaLogin = new TelaLogin(autenticacaoServico, bilheteServico, estatisticaServico);
             telaLogin.setVisible(true);
         });
     }

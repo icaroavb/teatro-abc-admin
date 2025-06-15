@@ -23,7 +23,7 @@ public class Usuario {
      */
     public Usuario(String id, String nome, String nomeUsuario, boolean admin) {
         //lógica de validação foi agora encapsulada
-        validarDadosEssenciais();
+        ///validarDadosEssenciais();
         
         this.id = id;
         this.nome = nome;
@@ -41,7 +41,7 @@ public class Usuario {
         return nomeUsuario == null || nomeUsuario.trim().isEmpty();
     }
     //encapsular a lógica de validação total 
-    private void validarDadosEssenciais (){
+  /*   private void validarDadosEssenciais (){
         if (validarId(id)) {
             throw new IllegalArgumentException("ID do usuário não pode ser nulo ou vazio");
         }
@@ -51,7 +51,7 @@ public class Usuario {
         if (validarNomeUsuario(nomeUsuario)) {
             throw new IllegalArgumentException("Nome de usuário não pode ser nulo ou vazio");
         }
-    }
+    }*/
     
     /**
      * Verifica se o usuário tem permissão para uma ação específica.
